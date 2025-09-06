@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"devices-api/internal/config"
+	"devices-api/internal/http/handlers/device"
 	"fmt"
 	"log"
 	"log/slog"
@@ -21,9 +22,7 @@ func main() {
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome to students api"))
-	})
+	router.HandleFunc("POST /api/devices", device.CreateDevice())
 
 	// setup server
 	server := http.Server{
