@@ -4,6 +4,7 @@ import (
 	"context"
 	"devices-api/internal/config"
 	"devices-api/internal/http/handlers/device"
+	"devices-api/internal/storage/sqlite"
 	"fmt"
 	"log"
 	"log/slog"
@@ -19,10 +20,19 @@ func main() {
 	// load config
 	cfg := config.MustLoad()
 
+	// database setup
+	storage, err := sqlite.New(cfg)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	slog.Info("storage initialized", slog.String("env", cfg.Env), slog.String("version", "1.0.0"))
+
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/devices", device.CreateDevice())
+	router.HandleFunc("POST /api/devices", device.CreateDevice(storage))
 
 	// setup server
 	server := http.Server{
@@ -53,7 +63,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := server.Shutdown(ctx)
+	err = server.Shutdown(ctx)
 	if err != nil {
 		slog.Error("Failed to shutdown server", slog.String("error", err.Error()))
 	}
