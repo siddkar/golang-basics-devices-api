@@ -33,6 +33,7 @@ func main() {
 	router := http.NewServeMux()
 
 	router.HandleFunc("POST /api/devices", device.CreateDevice(storage))
+	router.HandleFunc("GET /api/devices/{id}", device.GetDeviceById(storage))
 
 	// setup server
 	server := http.Server{

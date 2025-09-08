@@ -3,6 +3,8 @@ package sqlite
 import (
 	"database/sql"
 	"devices-api/internal/config"
+	"devices-api/internal/types/entities"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -51,4 +53,25 @@ func (s *Sqlite) CreateDevice(name string, manufacturer string, year int) (int64
 	}
 
 	return lastId, nil
+}
+
+func (s *Sqlite) GetDeviceById(id int64) (entities.Device, error) {
+	stmt, err := s.Db.Prepare("SELECT id, name, manufacturer, year FROM devices WHERE id = ? LIMIT 1")
+	if err != nil {
+		return entities.Device{}, err
+	}
+	defer stmt.Close()
+
+	var device entities.Device
+
+	err = stmt.QueryRow(id).Scan(&device.Id, &device.Name, &device.Manufacturer, &device.Year)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return entities.Device{}, fmt.Errorf("no student passed with id: %s", fmt.Sprint(id))
+		}
+		return entities.Device{}, fmt.Errorf("query error: %w", err)
+	}
+
+	return device, nil
 }

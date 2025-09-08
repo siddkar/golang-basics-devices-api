@@ -10,6 +10,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -51,5 +52,31 @@ func CreateDevice(storage storage.Storage) http.HandlerFunc {
 
 		slog.Info("Creating device")
 		helpers.WriteJsonResponse(w, http.StatusCreated, map[string]int64{"id": lastId})
+	}
+}
+
+func GetDeviceById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		slog.Info("getting a device", slog.String("id", id))
+
+		intId, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			helpers.WriteJsonResponse(w, http.StatusBadRequest, helpers.GeneralError(err))
+			return
+		}
+
+		rawDevice, err := storage.GetDeviceById(intId)
+
+		if err != nil {
+			slog.Error("error getting user", slog.String("id", id))
+			helpers.WriteJsonResponse(w, http.StatusInternalServerError, helpers.GeneralError(err))
+			return
+		}
+
+		var deviceDetails dtos.DeviceDetails = dtos.DeviceDetails(rawDevice)
+
+		helpers.WriteJsonResponse(w, http.StatusOK, deviceDetails)
+
 	}
 }
