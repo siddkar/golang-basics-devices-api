@@ -1,8 +1,7 @@
 package dtos
 
-type Device struct {
-	Id           int
-	Name         string
-	Manufacturer string
-	Year         int
+type CreateDevice struct {
+	Name         string `json:"name" validate:"required"`
+	Manufacturer string `json:"manufacturer" validate:"required"`
+	Year         int    `json:"year" validate:"required"`
 }
