@@ -69,12 +69,36 @@ func GetDeviceById(storage storage.Storage) http.HandlerFunc {
 		rawDevice, err := storage.GetDeviceById(intId)
 
 		if err != nil {
-			slog.Error("error getting user", slog.String("id", id))
+			slog.Error("error getting device", slog.String("id", id))
 			helpers.WriteJsonResponse(w, http.StatusInternalServerError, helpers.GeneralError(err))
 			return
 		}
 
 		var deviceDetails dtos.DeviceDetails = dtos.DeviceDetails(rawDevice)
+
+		helpers.WriteJsonResponse(w, http.StatusOK, deviceDetails)
+
+	}
+}
+
+func GetDevicesList(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		slog.Info("getting device list")
+
+		rawDevices, err := storage.GetDevicesList()
+
+		if err != nil {
+			slog.Error("error getting devices list")
+			helpers.WriteJsonResponse(w, http.StatusInternalServerError, helpers.GeneralError(err))
+			return
+		}
+
+		var deviceDetails = make([]dtos.DeviceDetails, len(rawDevices))
+
+		for i, rawDevice := range rawDevices {
+			deviceDetails[i] = dtos.DeviceDetails(rawDevice)
+		}
 
 		helpers.WriteJsonResponse(w, http.StatusOK, deviceDetails)
 

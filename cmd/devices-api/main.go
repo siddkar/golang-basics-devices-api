@@ -34,6 +34,7 @@ func main() {
 
 	router.HandleFunc("POST /api/devices", device.CreateDevice(storage))
 	router.HandleFunc("GET /api/devices/{id}", device.GetDeviceById(storage))
+	router.HandleFunc("GET /api/devices", device.GetDevicesList(storage))
 
 	// setup server
 	server := http.Server{

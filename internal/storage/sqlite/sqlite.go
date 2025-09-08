@@ -75,3 +75,34 @@ func (s *Sqlite) GetDeviceById(id int64) (entities.Device, error) {
 
 	return device, nil
 }
+
+func (s *Sqlite) GetDevicesList() ([]entities.Device, error) {
+	stmt, err := s.Db.Prepare("SELECT id, name, manufacturer, year FROM devices")
+	if err != nil {
+		return []entities.Device{}, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var devices []entities.Device
+
+	for rows.Next() {
+		var device entities.Device
+		err := rows.Scan(&device.Id, &device.Name, &device.Manufacturer, &device.Year)
+
+		if err != nil {
+			return nil, err
+		}
+
+		devices = append(devices, device)
+	}
+
+	return devices, nil
+}

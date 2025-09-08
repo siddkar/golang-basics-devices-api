@@ -7,4 +7,5 @@ import (
 type Storage interface {
 	CreateDevice(name string, manufacturer string, year int) (int64, error)
 	GetDeviceById(id int64) (entities.Device, error)
+	GetDevicesList() ([]entities.Device, error)
 }
